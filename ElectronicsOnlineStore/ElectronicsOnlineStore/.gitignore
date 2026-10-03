@@ -1,0 +1,24 @@
+﻿.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio files
+*.VC.db
+*.VC.VC.opendb
+
+# Rider
+.idea/
+
+# NuGet
+packages/
+*.nupkg
+
+# OS generated files
+.DS_Store
+Thumbs.db
