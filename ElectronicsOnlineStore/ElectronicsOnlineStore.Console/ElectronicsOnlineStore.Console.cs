@@ -1,12 +1,14 @@
 ﻿using ElectronicsOnlineStore.ElectronicsOnlineStore.Common;
 using System;
 using System.Text;
+using System.Threading.Tasks;
+using System.Linq;
 
 
 
-namespace ElectronicsOnlineStore.ElectronicsOnlineStore.ConsoleApp
+namespace ElectronicsOnlineStore.ElectronicsOnlineStore.Console
 {
-    class Class1
+    class ElectronicsOnlineStoreConsole
     {
 
         static void Main(string[] args)
@@ -14,15 +16,15 @@ namespace ElectronicsOnlineStore.ElectronicsOnlineStore.ConsoleApp
 
             System.Console.OutputEncoding = Encoding.UTF8;
             System.Console.InputEncoding = Encoding.UTF8;
-            
+
             // CREATE CRUD SERVICES
-          
+
             MyProductList<Computer> computerService =
                 new MyProductList<Computer>();
 
             MyProductList<Smartphone> smartphoneService =
                 new MyProductList<Smartphone>();
-         
+
             // CREATE - ДОДАВАННЯ КОМП'ЮТЕРІВ           
             Computer computer1 = new Computer
             {
@@ -87,7 +89,7 @@ namespace ElectronicsOnlineStore.ElectronicsOnlineStore.ConsoleApp
             {
                 System.Console.WriteLine($"{computer.Name} | {computer.Price:C}");
             }
-            
+
             // SMARTPHONES            
             System.Console.WriteLine();
             System.Console.WriteLine("==================================");
@@ -150,14 +152,14 @@ namespace ElectronicsOnlineStore.ElectronicsOnlineStore.ConsoleApp
             System.Console.WriteLine("EXTENSION METHOD");
             System.Console.WriteLine("==================================");
             smartphone1.GetPriceWithDiscount(10);
-            
+
             // STATIC PRODUCT MEMBER            
             System.Console.WriteLine();
             System.Console.WriteLine("==================================");
             System.Console.WriteLine("STATIC PRODUCT MEMBER");
             System.Console.WriteLine("==================================");
             System.Console.WriteLine($"Кількість створених продуктів: {Product.GetProductCount()}");
-            
+
             // CUSTOMER           
             System.Console.WriteLine();
             System.Console.WriteLine("==================================");
@@ -169,15 +171,44 @@ namespace ElectronicsOnlineStore.ElectronicsOnlineStore.ConsoleApp
                 "bohdan@gmail.com"
             );
             customer.DisplayInfo();
-            
+
             // PURCHASE + EVENT           
             System.Console.WriteLine();
             System.Console.WriteLine("==================================");
             System.Console.WriteLine("ПОКУПКА ПРОДУКТУ");
             System.Console.WriteLine("==================================");
             customer.BuyProduct(computer1);
-            System.Console.WriteLine();            
-        }
+            System.Console.WriteLine();
 
+
+            MyProductListAsync<Product> listProducts = new MyProductListAsync<Product>();
+
+            Parallel.For(0, 500, i =>
+            {
+                Smartphone randomSmartphone = Smartphone.CreateRandomSmartphone();
+                listProducts.CreateAsync(randomSmartphone);
+                customer.BuyProduct(randomSmartphone);
+            });
+
+            Parallel.For(0, 500, i =>
+            {
+                Computer randomComputer = Computer.CreateRandomComputer();
+                listProducts.CreateAsync(randomComputer);
+                customer.BuyProduct(randomComputer);
+            });
+
+            listProducts.SaveAsync().Wait();
+
+            var minPrice = listProducts.Min(p => p.Price);
+            var maxPrice = listProducts.Max(p => p.Price);
+            var avgPrice = listProducts.Average(p => p.Price);
+            var minWeight = listProducts.Min(p => p.Weight);
+            var maxWeight = listProducts.Max(p => p.Weight);
+            var avgWeight = listProducts.Average(p => p.Weight);
+            listProducts.ReadAllAsync().Wait();
+            listProducts.RemoveAsync(listProducts.Skip(30).FirstOrDefault()).Wait();
+            listProducts.UpdateAsync(listProducts.Skip(50).FirstOrDefault()).Wait();
+
+        }
     }
 }
